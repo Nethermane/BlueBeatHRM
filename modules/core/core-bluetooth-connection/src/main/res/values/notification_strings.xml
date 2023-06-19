@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bt_notification_title">BlueBeat heart rate tracking</string>
+    <string name="bt_notification_body">Your heart rate is being tracked</string>
+</resources>
