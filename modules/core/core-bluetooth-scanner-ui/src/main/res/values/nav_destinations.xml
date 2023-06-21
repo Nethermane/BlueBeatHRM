@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bt_permission_destination">BLUETOOTH_PERMISSION_DESTINATION</string>
+    <string name="bt_sync_destination">BLUETOOTH_SYNC_DESTINATION</string>
+
+</resources>
