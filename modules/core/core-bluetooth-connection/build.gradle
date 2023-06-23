@@ -31,8 +31,8 @@ android {
 }
 
 dependencies {
-    implementation platform("androidx.compose:compose-bom:${project.property("compose.bom.version")}")
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:${project.property("kotlin.bom.version")}")
+    implementation platform("androidx.compose:compose-bom:${project.property("project.compose.bom.version")}")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:${project.property("project.kotlin.version")}")
 
     implementation 'androidx.core:core-ktx'
     implementation 'androidx.appcompat:appcompat:1.6.1'

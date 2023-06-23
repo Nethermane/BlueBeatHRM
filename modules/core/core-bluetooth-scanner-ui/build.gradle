@@ -30,16 +30,17 @@ android {
     }
     buildFeatures { // Enables Jetpack Compose for this module
         compose = true
+        buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion project.property("kotlin.compiler.ext.version")
+        kotlinCompilerExtensionVersion project.property("project.compose.compiler.version")
     }
 }
 
 dependencies {
 
-    implementation platform("androidx.compose:compose-bom:${project.property("compose.bom.version")}")
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:${project.property("kotlin.bom.version")}")
+    implementation platform("androidx.compose:compose-bom:${project.property("project.compose.bom.version")}")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:${project.property("project.kotlin.version")}")
 
     implementation 'androidx.core:core-ktx'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
@@ -53,6 +54,9 @@ dependencies {
     implementation 'androidx.compose.material3:material3'
     implementation "androidx.navigation:navigation-compose:${project.property("compose.navigation.version")}"
     implementation "com.google.accompanist:accompanist-permissions:0.30.1"
+
+//    //M3 lacks pull refresh, if they every add this replace this
+    implementation "me.omico.lux:lux-androidx-compose-material3-pullrefresh"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

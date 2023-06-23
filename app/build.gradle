@@ -37,7 +37,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion project.property("kotlin.compiler.ext.version")
+        kotlinCompilerExtensionVersion project.property("project.compose.compiler.version")
     }
     packagingOptions {
         resources {
@@ -47,8 +47,8 @@ android {
 }
 
 dependencies {
-    implementation platform("androidx.compose:compose-bom:${project.property("compose.bom.version")}")
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:${project.property("kotlin.bom.version")}")
+    implementation platform("androidx.compose:compose-bom:${project.property("project.compose.bom.version")}")
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:${project.property("project.kotlin.version")}")
 
 
     implementation 'androidx.core:core-ktx'
@@ -71,7 +71,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     //TODO: Sort out why this doesn't work with the BOM no versioning
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.4.3"
-
 
 
     //Unit test deps

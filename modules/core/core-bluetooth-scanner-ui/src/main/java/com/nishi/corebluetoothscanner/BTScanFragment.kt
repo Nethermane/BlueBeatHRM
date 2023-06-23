@@ -3,11 +3,10 @@ package com.nishi.corebluetoothscanner
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.BluetoothLeScanner
-import android.bluetooth.le.ScanCallback
 import android.content.Context
-import android.os.Bundle
-import android.view.View
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.annotation.RequiresPermission
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,8 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,43 +36,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.google.accompanist.permissions.rememberPermissionState
 import com.nishi.corebluetoothscanner.RequiredPermissions.REQUIRED_BT_PERMISSIONS
 import kotlinx.coroutines.launch
-
-@Composable
-@RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-fun makeBTScannerScreen(context: Context) {
-    val bluetoothManager: BluetoothManager = context.getSystemService(BluetoothManager::class.java)
-    //TODO: Fix
-    val bluetoothAdapter = bluetoothManager.adapter!!
-    return BTScannerScreen(bluetoothAdapter)
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-@RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
-private fun BTScannerScreen(
-    adapter: BluetoothAdapter
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val viewModel = BTScannerViewModel(adapter)
-    val shouldRequestBluetooth = viewModel.requestBTPermission.collectAsStateWithLifecycle()
-    Button(onClick = {
-        coroutineScope.launch {
-            viewModel.scanLeDevice()
-        }
-    }) {
-        Text(text = "Sync new bluetooth device")
-    }
-}
+import com.nishi.corebluetoothscanner.BuildConfig
 
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalAnimationApi::class)
@@ -94,7 +64,7 @@ fun BTPermissionScreen(navController: NavController) {
         return
     }
 
-    val shouldEnabledPermissionButton by remember {
+    val shouldLinkoutToSettings by remember {
         derivedStateOf {
             !permissionAlreadyRequested || cameraPermissionState.shouldShowRationale
         }
@@ -107,6 +77,7 @@ fun BTPermissionScreen(navController: NavController) {
     } else {
         null
     }
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(
@@ -121,11 +92,25 @@ fun BTPermissionScreen(navController: NavController) {
                 ) {
                     Button(
                         onClick = {
-                            cameraPermissionState.launchMultiplePermissionRequest()
+                            if (shouldLinkoutToSettings) {
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                // Fix this later
+                                val uri = Uri.fromParts("package", "com.nishi.bluebeat", null)
+                                intent.data = uri
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                context.startActivity(intent)
+                            } else {
+                                cameraPermissionState.launchMultiplePermissionRequest()
+                            }
                         },
-                        enabled = shouldEnabledPermissionButton,
-                        ) {
-                        Text(text = "Grant Bluetooth Permissions")
+                    ) {
+                        Text(
+                            text = if (shouldLinkoutToSettings) {
+                                "Change permissions manually"
+                            } else {
+                                "Grant Bluetooth Permissions"
+                            }
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.weight(1.0f))

@@ -1,17 +1,20 @@
 package com.nishi.corebluetoothscanner
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothAdapter.LeScanCallback
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,17 +25,18 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+
+@SuppressLint("MissingPermission")
 class BTScannerViewModel(
     private val btAdapter: BluetoothAdapter
-): ViewModel() {
-    private val scanning = MutableStateFlow(false)
-    private val btEnabled = MutableStateFlow(false)
-    private val _requestBTPermission = MutableStateFlow<Boolean>(false)
-    internal val requestBTPermission: StateFlow<Boolean> = _requestBTPermission
+) : ViewModel() {
+    private val _scanning = MutableStateFlow(false)
+    internal val scanning: StateFlow<Boolean> = _scanning
 
     private val btScanner = btAdapter.bluetoothLeScanner
 
-    private val leDevices = MutableStateFlow<List<BluetoothDevice>>(emptyList())
+    internal val leDevices = MutableStateFlow<List<BluetoothDevice>>(emptyList())
+
     // Device scan callback.
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
@@ -43,8 +47,11 @@ class BTScannerViewModel(
         }
     }
 
-
-
+    init {
+        viewModelScope.launch {
+            scanLeDevice()
+        }
+    }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_SCAN)
     internal suspend fun scanLeDevice() {
@@ -65,6 +72,7 @@ class BTScannerViewModel(
 
     companion object {
         const val REQUEST_ENABLE_BT = 1
+
         // Stops scanning after 10 seconds.
         private const val SCAN_PERIOD: Long = 10000
     }
